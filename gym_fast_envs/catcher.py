@@ -155,7 +155,7 @@ class RGBRender(Renderer):
 
 
 class Catcher(object):
-    def __init__(self, level=0, width=24, height=24, seed=42,
+    def __init__(self, level=0, width=24, height=24, seed=42, flip=False,
                  internal_render=False):
 
         self.seed = seed
@@ -168,9 +168,11 @@ class Catcher(object):
 
         self.positive_reward = 1
         self.negative_reward = 0
+        self.flipped_negative_reward = -1
+        self.flipped_positive_reward = 0
 
         self.internal_render = internal_render
-
+        self.flip = flip
         self._init()
 
     def _init(self):
@@ -226,6 +228,11 @@ class Catcher(object):
         if not self.is_terminal():
             return 0
         else:
+            if self.flip:
+                if b_x < t_x.start or b_x > (t_x.stop - 1):
+                    return self.flipped_positive_reward
+                else:
+                    return self.flipped_negative_reward
             if b_x < t_x.start or b_x > (t_x.stop-1):
                 return self.negative_reward
             else:
