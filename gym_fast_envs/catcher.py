@@ -1,5 +1,5 @@
 import numpy as np
-
+import random
 
 class Ball(object):
     def __init__(self, bounds, level, rng):
@@ -155,7 +155,7 @@ class RGBRender(Renderer):
 
 
 class Catcher(object):
-    def __init__(self, level=0, width=24, height=24, seed=42, flip=False,
+    def __init__(self, level=0, width=24, height=24, seed=42, meta_level=0,
                  internal_render=False):
 
         self.seed = seed
@@ -172,7 +172,8 @@ class Catcher(object):
         self.flipped_positive_reward = 0
 
         self.internal_render = internal_render
-        self.flip = flip
+        self.meta_level = meta_level
+        self.flip = False
         self._init()
 
     def _init(self):
@@ -188,6 +189,13 @@ class Catcher(object):
         # self.render_engine=AsciiArtRender(self.canvas,self.ball,self.tray)
 
     def reset(self):
+        if self.meta_level == 0:
+            self.flip = False
+        elif self.meta_level == 1:
+            self.flip = True
+        else:
+            self.flip = random.choice([True, False])
+
         self.tray.reset_position()
         self.ball.reset_position()
 

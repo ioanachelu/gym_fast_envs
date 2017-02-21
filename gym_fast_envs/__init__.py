@@ -13,23 +13,17 @@ register(
 # Difficulty levels and sizes
 for level in range(6):
     for size in (24, 32, 48):
-        for flip in [True, False]:
-            if flip:
-                if size is 24:
-                    game = 'Catcher-Flipped-Level%d-v0' % (level)
-                else:
-                    game = 'Catcher-Flipped-Level%d-x%d-v0' % (level, size)
+        for meta_level in [0, 1, 2]:
+            if size is 24:
+                game = 'Catcher-Level%d-MetaLevel%d-v0' % (level, meta_level)
             else:
-                if size is 24:
-                    game = 'Catcher-Level%d-v0' % (level)
-                else:
-                    game = 'Catcher-Level%d-x%d-v0' % (level, size)
+                game = 'Catcher-Level%d-MetaLevel%d-x%d-v0' % (level, meta_level, size)
 
             register(
                 id=game,
                 entry_point='gym_fast_envs.gym_fast_envs:FastEnvs',
                 kwargs={'game_name': game, 'display_screen': False,
-                        'level': level, 'width': size, 'height': size, 'flip': flip},
+                        'level': level, 'width': size, 'height': size, 'meta_level': meta_level},
                 tags={'wrapper_config.TimeLimit.max_episode_steps': 10000},
                 nondeterministic=False,
             )
