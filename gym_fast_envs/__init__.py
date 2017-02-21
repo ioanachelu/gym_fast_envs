@@ -5,7 +5,7 @@ from gym.envs.registration import registry, register, make, spec
 register(
     id='Catcher-v0',
     entry_point='gym_fast_envs.gym_fast_envs:FastEnvs',
-    kwargs={'game_name': 'Catcher-v0', 'display_screen': False, 'level': 2},
+    kwargs={'game_name': 'Catcher-v0', 'display_screen': False, 'level': 2, 'meta_level': 0},
     tags={'wrapper_config.TimeLimit.max_episode_steps': 10000},
     nondeterministic=False,
 )

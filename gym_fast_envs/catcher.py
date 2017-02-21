@@ -1,6 +1,7 @@
 import numpy as np
 import random
 
+
 class Ball(object):
     def __init__(self, bounds, level, rng):
         self.rng = rng
@@ -9,11 +10,11 @@ class Ball(object):
         self.y_bounds = (0, bounds[0])
 
         self.x = int(np.floor(self.x_bounds[1] / 2))
-        self.y = -1                                 # always starts at the top
+        self.y = -1  # always starts at the top
 
         self.level = level
         self.angle = int(self.rng.choice([-1, 1]) * np.floor(self.level / 2))
-        self.att_prob = self.level/10
+        self.att_prob = self.level / 10
 
     def move_ball(self):
         self.y += 1
@@ -35,7 +36,7 @@ class Ball(object):
 
     def reset_position(self):
         self.x = self.rng.choice(self.x_bounds[1])
-        self.y = -1                                 # always starts at the top
+        self.y = -1  # always starts at the top
 
 
 class Tray(object):
@@ -56,7 +57,7 @@ class Tray(object):
             self.x = min(self.x + 1, self.x_bounds[1] - self.width)
 
     def get_position(self):
-        return (self.y, range(self.x, self.x+self.width+1))
+        return (self.y, range(self.x, self.x + self.width + 1))
 
     def reset_position(self):
         self.x = int(np.floor((self.x_bounds[1] - self.width) / 2 - 1))
@@ -69,7 +70,7 @@ class Canvas(object):
         self.height = height
 
     def get_bounds(self):
-        return (self.height-1, self.width-1)            # numpy row-major order
+        return (self.height - 1, self.width - 1)  # numpy row-major order
 
     def get_size(self):
         return (self.height, self.width)
@@ -109,7 +110,6 @@ def button_click_exit_mainloop(event):
 
 class RGBRender(Renderer):
     def __init__(self, canvas, ball, tray, internal_render):
-
         Renderer.__init__(self, ball, tray)
 
         self.screen = np.ndarray(shape=(*canvas.get_size(), 3), dtype=np.uint8)
@@ -155,9 +155,9 @@ class RGBRender(Renderer):
 
 
 class Catcher(object):
-    def __init__(self, level=0, width=24, height=24, seed=42, meta_level=0,
+    def __init__(self, level=0, width=24, height=24, meta_level=0, seed=42,
                  internal_render=False):
-
+        # print("Catcher initialized with meta_level {}".format(meta_level))
         self.seed = seed
         self.rng = np.random.RandomState(self.seed)
 
@@ -177,6 +177,13 @@ class Catcher(object):
         self._init()
 
     def _init(self):
+        if self.meta_level == 0:
+            self.flip = False
+        elif self.meta_level == 1:
+            self.flip = True
+        else:
+            self.flip = random.choice([True, False])
+
         self.canvas = Canvas(self.width, self.height)
         self.tray = Tray(self.canvas.get_bounds())
         self.ball = Ball(self.canvas.get_bounds(), self.level, self.rng)
@@ -200,7 +207,8 @@ class Catcher(object):
         self.tray.reset_position()
         self.ball.reset_position()
 
-        return self.get_screen(), self.is_terminal(), self.get_reward(), {"flip": self.flip}
+        return self.get_screen(), self.is_terminal(), self.get_reward(), {"flip": self.flip,
+                                                                          "meta_level": self.meta_level}
 
     def set_seed(self, seed):
         self.seed = seed
@@ -228,7 +236,8 @@ class Catcher(object):
         self.tray.move_tray(self.actions[action])
         self.render_engine.update()
 
-        return self.get_screen(), self.is_terminal(), self.get_reward(), {"flip": self.flip}
+        return self.get_screen(), self.is_terminal(), self.get_reward(), {"flip": self.flip,
+                                                                          "meta_level": self.meta_level}
 
     def get_reward(self):
         b_y, b_x = self.ball.get_position()
@@ -243,7 +252,7 @@ class Catcher(object):
                 else:
                     return self.flipped_negative_reward
             else:
-                if b_x < t_x.start or b_x > (t_x.stop-1):
+                if b_x < t_x.start or b_x > (t_x.stop - 1):
                     return self.negative_reward
                 else:
                     return self.positive_reward
