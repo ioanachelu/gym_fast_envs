@@ -241,10 +241,11 @@ class Catcher(object):
                     return self.flipped_positive_reward
                 else:
                     return self.flipped_negative_reward
-            if b_x < t_x.start or b_x > (t_x.stop-1):
-                return self.negative_reward
             else:
-                return self.positive_reward
+                if b_x < t_x.start or b_x > (t_x.stop-1):
+                    return self.negative_reward
+                else:
+                    return self.positive_reward
 
     def is_terminal(self):
         b_y, b_x = self.ball.get_position()
