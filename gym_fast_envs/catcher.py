@@ -189,6 +189,7 @@ class Catcher(object):
         # self.render_engine=AsciiArtRender(self.canvas,self.ball,self.tray)
 
     def reset(self):
+
         if self.meta_level == 0:
             self.flip = False
         elif self.meta_level == 1:
@@ -199,7 +200,7 @@ class Catcher(object):
         self.tray.reset_position()
         self.ball.reset_position()
 
-        return self.get_screen(), self.is_terminal(), self.get_reward()
+        return self.get_screen(), self.is_terminal(), self.get_reward(), {"flip": self.flip}
 
     def set_seed(self, seed):
         self.seed = seed
@@ -227,7 +228,7 @@ class Catcher(object):
         self.tray.move_tray(self.actions[action])
         self.render_engine.update()
 
-        return self.get_screen(), self.is_terminal(), self.get_reward()
+        return self.get_screen(), self.is_terminal(), self.get_reward(), {"flip": self.flip}
 
     def get_reward(self):
         b_y, b_x = self.ball.get_position()
