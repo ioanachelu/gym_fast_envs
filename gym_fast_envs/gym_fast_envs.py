@@ -7,11 +7,11 @@ class FastEnvs(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
     def __init__(self, game_name='Catcher', display_screen=False,
-                 level=2, width=24, height=24, seed=42):
+                 level=2, width=24, height=24, seed=42, meta_level=0):
 
-        self.game = Catcher(level, width, height)
-        print("Initialize Catcher-v0: level=%d, angle=%d, size=%dpx." %
-              (level, self.game.ball.angle, width))
+        self.game = Catcher(level, width, height, meta_level)
+        print("Initialize Catcher-v0: level=%d, angle=%d, size=%dpx meta_level=%d." %
+              (level, self.game.ball.angle, width, meta_level))
 
         self._action_set = self.game.get_action_set()
         self.action_space = spaces.Discrete(len(self._action_set))
