@@ -21,8 +21,8 @@ class FastEnvs(gym.Env):
         self.viewer = None
 
     def _step(self, action):
-        observation, terminal, reward = self.game.step(action)
-        return observation, reward, terminal, {}
+        observation, terminal, reward, info = self.game.step(action)
+        return observation, reward, terminal, info
 
     def _get_image(self):
         return self.game.get_screen()
@@ -34,8 +34,8 @@ class FastEnvs(gym.Env):
     def _reset(self):
         self.observation_space = spaces.Box(
             low=0, high=255, shape=(self.screen_width, self.screen_height, 3))
-        observation, _, _ = self.game.reset()
-        return observation
+        observation, done, reward, info = self.game.reset()
+        return observation, done, reward, info
 
     def _render(self, mode='human', close=False):
         if close:
