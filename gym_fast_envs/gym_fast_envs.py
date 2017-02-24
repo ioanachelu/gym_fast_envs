@@ -35,7 +35,7 @@ class FastEnvs(gym.Env):
         self.observation_space = spaces.Box(
             low=0, high=255, shape=(self.screen_width, self.screen_height, 3))
         observation, done, reward, info = self.game.reset()
-        return observation, done, reward, info
+        return observation
 
     def _render(self, mode='human', close=False):
         if close:
