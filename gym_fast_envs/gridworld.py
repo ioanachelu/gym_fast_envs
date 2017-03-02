@@ -3,7 +3,7 @@ import random
 import itertools
 import scipy.ndimage
 import scipy.misc
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 
 class gameOb():
@@ -127,6 +127,10 @@ class gameEnv():
         if ended == False:
             return 0.0, False
 
+    def render(self):
+        state, state_big = self.renderEnv()
+        plt.imshow(state, interpolation="nearest")
+
     def renderEnv(self):
         if self.partial == True:
             padding = 2
@@ -188,7 +192,7 @@ if __name__ == '__main__':
     while True:
         s1, s1_big, r, d, _, _ = game.step(player_rng.choice(game.actions))
         step += 1
-        game.renderEnv()
+        game.render()
         tot_rw += r
         if d:
             ep += 1
