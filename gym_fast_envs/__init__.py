@@ -4,7 +4,7 @@ from gym.envs.registration import registry, register, make, spec
 # Default
 register(
     id='Catcher-v0',
-    entry_point='gym_fast_envs.gym_fast_envs:FastEnvs',
+    entry_point='gym_fast_envs.gym_fast_envs_catcher:FastEnvsCatcher',
     kwargs={'game_name': 'Catcher-v0', 'display_screen': False, 'level': 2, 'meta_level': 0},
     tags={'wrapper_config.TimeLimit.max_episode_steps': 10000},
     nondeterministic=False,
@@ -21,9 +21,31 @@ for level in range(6):
 
             register(
                 id=game,
-                entry_point='gym_fast_envs.gym_fast_envs:FastEnvs',
+                entry_point='gym_fast_envs.gym_fast_envs_catcher:FastEnvsCatcher',
                 kwargs={'game_name': game, 'display_screen': False,
                         'level': level, 'width': size, 'height': size, 'meta_level': meta_level},
                 tags={'wrapper_config.TimeLimit.max_episode_steps': 10000},
                 nondeterministic=False,
             )
+
+# Default
+register(
+    id='Gridworld-v0',
+    entry_point='gym_fast_envs.gym_fast_envs_gridworld:FastEnvsGridworld',
+    kwargs={'game_name': 'Gridworld-v0', 'display_screen': False, 'size': 5},
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 10000},
+    nondeterministic=False,
+)
+
+# sizes
+for size in (6, 50):
+    game = 'Gridworld-x%d-v0' % (level, size)
+
+    register(
+        id=game,
+        entry_point='gym_fast_envs.gym_fast_envs_gridworld:FastEnvsGridworld',
+        kwargs={'game_name': game, 'display_screen': False,
+                'size': size},
+        tags={'wrapper_config.TimeLimit.max_episode_steps': 10000},
+        nondeterministic=False,
+    )

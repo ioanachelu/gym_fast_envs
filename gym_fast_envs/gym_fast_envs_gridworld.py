@@ -1,21 +1,20 @@
 import gym
 from gym import spaces
-from gym_fast_envs.catcher import Catcher
+from gym_fast_envs.gridworld import Gridworld
 
 
-class FastEnvs(gym.Env):
+class FastEnvsGridworld(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, game_name='Catcher', display_screen=False,
-                 level=2, width=24, height=24, seed=42, meta_level=0):
+    def __init__(self, game_name='Gridworld', display_screen=False,
+                 partial=False, size=5, seed=None):
 
-        self.game = Catcher(level, width, height, meta_level)
-        print("Initialize Catcher-v0: level=%d, angle=%d, size=%dpx meta_level=%d." %
-              (level, self.game.ball.angle, width, meta_level))
+        self.game = Gridworld(partial, size, seed)
+        print("Initialize Gridworld-v0: partial={}, size={}, seed={}.".format(partial, size, seed))
 
-        self._action_set = self.game.get_action_set()
-        self.action_space = spaces.Discrete(len(self._action_set))
-        self.screen_width, self.screen_height = self.game.get_screen_dims()
+        self._action_set = self.game.actions()
+        self.action_space = spaces.Discrete(len(self.actions))
+        self.screen_width, self.screen_height = size, size
         self.observation_space = spaces.Box(
             low=0, high=255, shape=(self.screen_width, self.screen_height, 3))
         self.viewer = None

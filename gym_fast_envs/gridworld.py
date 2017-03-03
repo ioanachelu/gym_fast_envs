@@ -4,6 +4,7 @@ import itertools
 import scipy.ndimage
 import scipy.misc
 import matplotlib.pyplot as plt
+from PIL import Image
 
 
 class gameOb():
@@ -16,21 +17,33 @@ class gameOb():
         self.name = name
 
 
-class gameEnv():
-    def __init__(self, partial, size, goal_color):
+class Gridworld():
+    def __init__(self, partial, size, seed=None):
         self.sizeX = size
         self.sizeY = size
         self.actions = 4
         self.objects = []
         self.partial = partial
         self.bg = np.zeros([size, size])
-        a, a_big = self.reset(goal_color)
+        self.seed = seed
+        if seed:
+            np.random.seed(self.seed)
+        a, a_big = self.reset()
         # plt.imshow(a_big, interpolation="nearest")
+
+    def get_screen(self):
+        state, state_big = self.renderEnv()
+        return state
+
+
+    def set_seed(self, seed):
+        self.seed = seed
 
     def getFeatures(self):
         return np.array([self.objects[0].x, self.objects[0].y]) / float(self.sizeX)
 
-    def reset(self, goal_color):
+    def reset(self):
+        goal_color = [np.random.uniform(), np.random.uniform(), np.random.uniform()]
         self.objects = []
         self.goal_color = goal_color
         self.other_color = [1 - a for a in self.goal_color]
@@ -45,7 +58,7 @@ class gameEnv():
             self.objects.append(hole)
         state, s_big = self.renderEnv()
         self.state = state
-        return state, s_big
+        return state
 
     def moveChar(self, action):
         # 0 - up, 1 - down, 2 - left, 3 - right, 4 - 90 counter-clockwise, 5 - 90 clockwise
@@ -129,7 +142,7 @@ class gameEnv():
 
     def render(self):
         state, state_big = self.renderEnv()
-        plt.imshow(state, interpolation="nearest")
+        plt.imshow(state)
 
     def renderEnv(self):
         if self.partial == True:
@@ -166,7 +179,7 @@ class gameEnv():
             for ob in self.objects:
                 if ob.name == 'goal':
                     goal = ob
-            return state, s_big, (reward + penalty), done, [self.objects[0].y, self.objects[0].x], [goal.y, goal.x]
+            return state, (reward + penalty), done, [self.objects[0].y, self.objects[0].x] + [goal.y, goal.x]
 
 
 if __name__ == '__main__':
@@ -178,19 +191,18 @@ if __name__ == '__main__':
     import numpy as np
 
     player_rng = np.random.RandomState(0)
-    game = gameEnv(partial=False, size=5, goal_color=[np.random.uniform(), np.random.uniform(),
-                                                      np.random.uniform()])
+    game = Gridworld(partial=False, size=10)
 
     start = time.time()
-    reward_color = [np.random.uniform(), np.random.uniform(), np.random.uniform()]
+    # reward_color = [np.random.uniform(), np.random.uniform(), np.random.uniform()]
     # reward_color = [1,0,0]
-    s, s_big = game.reset(reward_color)
+    s = game.reset()
     ep = 0
     step = 0
     tot_rw = 0
 
     while True:
-        s1, s1_big, r, d, _, _ = game.step(player_rng.choice(game.actions))
+        s1, r, d, _, _ = game.step(player_rng.choice(game.actions))
         step += 1
         game.render()
         tot_rw += r
