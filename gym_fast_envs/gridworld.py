@@ -28,12 +28,12 @@ class Gridworld():
         self.seed = seed
         if seed:
             np.random.seed(self.seed)
-        a, a_big = self.reset()
+        a = self.reset()
         # plt.imshow(a_big, interpolation="nearest")
 
     def get_screen(self):
         state, state_big = self.renderEnv()
-        return state
+        return state_big
 
 
     def set_seed(self, seed):
@@ -58,7 +58,7 @@ class Gridworld():
             self.objects.append(hole)
         state, s_big = self.renderEnv()
         self.state = state
-        return state
+        return state, s_big
 
     def moveChar(self, action):
         # 0 - up, 1 - down, 2 - left, 3 - right, 4 - 90 counter-clockwise, 5 - 90 clockwise
@@ -162,7 +162,7 @@ class Gridworld():
             #    hero = item
         if self.partial == True:
             a = a[(hero.y):(hero.y + (padding * 2) + hero.size), (hero.x):(hero.x + (padding * 2) + hero.size), :]
-        a_big = scipy.misc.imresize(a, [32, 32, 3], interp='nearest')
+        a_big = scipy.misc.imresize(a, [200, 200, 3], interp='nearest')
         return a, a_big
 
     def step(self, action):
@@ -179,7 +179,7 @@ class Gridworld():
             for ob in self.objects:
                 if ob.name == 'goal':
                     goal = ob
-            return state, (reward + penalty), done, [self.objects[0].y, self.objects[0].x] + [goal.y, goal.x]
+            return state, s_big, (reward + penalty), done, [self.objects[0].y, self.objects[0].x] + [goal.y, goal.x]
 
 
 if __name__ == '__main__':

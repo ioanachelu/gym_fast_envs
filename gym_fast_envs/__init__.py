@@ -39,7 +39,7 @@ register(
 
 # sizes
 for size in (6, 50):
-    game = 'Gridworld-x%d-v0' % (level, size)
+    game = 'Gridworld-x%d-v0' % (size)
 
     register(
         id=game,

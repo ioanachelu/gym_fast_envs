@@ -12,15 +12,14 @@ class FastEnvsGridworld(gym.Env):
         self.game = Gridworld(partial, size, seed)
         print("Initialize Gridworld-v0: partial={}, size={}, seed={}.".format(partial, size, seed))
 
-        self._action_set = self.game.actions()
-        self.action_space = spaces.Discrete(len(self.actions))
-        self.screen_width, self.screen_height = size, size
+        self.action_space = spaces.Discrete(self.game.actions)
+        self.screen_width, self.screen_height = 200, 200
         self.observation_space = spaces.Box(
             low=0, high=255, shape=(self.screen_width, self.screen_height, 3))
         self.viewer = None
 
     def _step(self, action):
-        observation, terminal, reward, info = self.game.step(action)
+        observation, obs_big, terminal, reward, info = self.game.step(action)
         return observation, reward, terminal, info
 
     def _get_image(self):
@@ -28,12 +27,12 @@ class FastEnvsGridworld(gym.Env):
 
     @property
     def _n_actions(self):
-        return len(self._action_set)
+        return self.game.actions
 
     def _reset(self):
         self.observation_space = spaces.Box(
             low=0, high=255, shape=(self.screen_width, self.screen_height, 3))
-        observation, done, reward, info = self.game.reset()
+        observation, obs_big = self.game.reset()
         return observation
 
     def _render(self, mode='human', close=False):
