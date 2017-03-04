@@ -21,7 +21,7 @@ class FastEnvsCatcher(gym.Env):
         self.viewer = None
 
     def _step(self, action):
-        observation, terminal, reward, info = self.game.step(action)
+        observation, reward, terminal, info = self.game.step(action)
         return observation, reward, terminal, info
 
     def _get_image(self):
@@ -34,7 +34,7 @@ class FastEnvsCatcher(gym.Env):
     def _reset(self):
         self.observation_space = spaces.Box(
             low=0, high=255, shape=(self.screen_width, self.screen_height, 3))
-        observation, done, reward, info = self.game.reset()
+        observation, reward, done, info = self.game.reset()
         return observation
 
     def _render(self, mode='human', close=False):

@@ -3,7 +3,6 @@ import random
 import itertools
 import scipy.ndimage
 import scipy.misc
-import matplotlib.pyplot as plt
 from PIL import Image
 
 
@@ -43,7 +42,12 @@ class Gridworld():
         return np.array([self.objects[0].x, self.objects[0].y]) / float(self.sizeX)
 
     def reset(self):
-        goal_color = [np.random.uniform(), np.random.uniform(), np.random.uniform()]
+        while True:
+            goal_color = [np.random.uniform(), np.random.uniform(), np.random.uniform()]
+            if not(goal_color[0] == 0 and goal_color[2] == 0 and goal_color[2] == 1 or
+                goal_color[0] == 1 and goal_color[2] == 1 and goal_color[2] == 0):
+                break
+
         self.objects = []
         self.goal_color = goal_color
         self.other_color = [1 - a for a in self.goal_color]
@@ -142,7 +146,9 @@ class Gridworld():
 
     def render(self):
         state, state_big = self.renderEnv()
-        plt.imshow(state)
+        # import matplotlib.pyplot as plt
+        pil_image = Image.fromarray(state_big)
+        pil_image.imshow()
 
     def renderEnv(self):
         if self.partial == True:
@@ -154,7 +160,10 @@ class Gridworld():
             a = np.zeros([self.sizeY, self.sizeX, 3])
             padding = 0
             a += np.dstack([self.bg, self.bg, self.bg])
-        hero = self.objects[0]
+        try:
+            hero = self.objects[0]
+        except:
+            print("fsf")
         for item in self.objects:
             a[item.y + padding:item.y + item.size + padding, item.x + padding:item.x + item.size + padding,
             :] = item.color

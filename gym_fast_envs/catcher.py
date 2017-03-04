@@ -207,7 +207,7 @@ class Catcher(object):
         self.tray.reset_position()
         self.ball.reset_position()
 
-        return self.get_screen(), self.is_terminal(), self.get_reward(), {"flip": self.flip,
+        return self.get_screen(), self.get_reward(), self.is_terminal(), {"flip": self.flip,
                                                                           "meta_level": self.meta_level}
 
     def set_seed(self, seed):
@@ -236,7 +236,7 @@ class Catcher(object):
         self.tray.move_tray(self.actions[action])
         self.render_engine.update()
 
-        return self.get_screen(), self.is_terminal(), self.get_reward(), {"flip": self.flip,
+        return self.get_screen(), self.get_reward(), self.is_terminal(), {"flip": self.flip,
                                                                           "meta_level": self.meta_level}
 
     def get_reward(self):
