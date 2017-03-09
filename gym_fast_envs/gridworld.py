@@ -5,6 +5,63 @@ import scipy.ndimage
 import scipy.misc
 from PIL import Image
 
+# class Renderer(object):
+#     def __init__(self, ball, tray):
+#         self.ball = ball
+#         self.tray = tray
+#
+#     def update(self):
+#         ball_position = self.ball.get_position()
+#         tray_position = self.tray.get_position()
+#
+#         self.screen.fill(self.bg_code)
+#         self.screen[ball_position] = self.ball_code
+#         self.screen[tray_position] = self.tray_code
+#
+# class RGBRender(Renderer):
+#     def __init__(self, canvas, ball, tray, internal_render):
+#         Renderer.__init__(self, ball, tray)
+#
+#         self.screen = np.ndarray(shape=(*canvas.get_size(), 3), dtype=np.uint8)
+#         self.screen.fill(242)
+#
+#         self.bg_code = (242, 242, 242)[0]
+#         self.ball_code = (231, 56, 133)
+#         self.tray_code = (55, 82, 159)
+#
+#         self.internal_render = internal_render
+#
+#         if internal_render is True:
+#             self._init_internal_window()
+#
+#     def get_screen(self):
+#         return self.screen
+#
+#     def _init_internal_window(self):
+#         """ Sets window for internal renderer. """
+#         print("Setting up tkinter...")
+#
+#         self.win = tkinter.Tk()
+#         self.win.geometry('+%d+%d' % (100, 100))
+#         self.win.title("Catcher")
+#         # self.win.bind("<Button>", button_click_exit_mainloop)
+#         self.old_screen_label = None
+#
+#     def render(self):
+#         """Opens a tk window and displays a PIL.Image"""
+#
+#         screen = Image.fromarray(self.screen, 'RGB')
+#         screen = screen.resize((512, 512))
+#         self.win.geometry('%dx%d' % (screen.size[0], screen.size[1]))
+#
+#         tkpi = ImageTk.PhotoImage(screen)
+#         label_img = tkinter.Label(self.win, image=tkpi)
+#         label_img.place(x=0, y=0,
+#                         width=screen.size[0], height=screen.size[1])
+#
+#         # self.win.mainloop()            # wait until user clicks the window
+#         self.win.update_idletasks()
+#         self.win.update()
 
 class gameOb():
     def __init__(self, coordinates, size, color, reward, name):
@@ -17,14 +74,36 @@ class gameOb():
 
 
 class Gridworld():
-    def __init__(self, partial, size, seed=None):
+    def __init__(self, partial, size, nb_apples, nb_oranges, orange_reward=0, seed=None, internal_render=False):
         self.sizeX = size
         self.sizeY = size
         self.actions = 4
+        self.max_apples = self.sizeX - 1
+        self.max_oranges = self.sizeX - 1
+        self.nb_apples = nb_apples
+        self.nb_oranges = nb_oranges
         self.objects = []
+        self.orange_reward = orange_reward
         self.partial = partial
         self.bg = np.zeros([size, size])
         self.seed = seed
+        if internal_render:
+            print("Setting up tkinter...")
+
+            self.win = tkinter.Tk()
+
+            screen_width = root.winfo_screenwidth()
+            screen_height = root.winfo_screenheight()
+
+            # calculate position x and y coordinates
+            x = (screen_width / 2) - (width / 2)
+            y = (screen_height / 2) - (height / 2)
+            
+            self.win.geometry('+%d+%d' % (200, 200))
+            self.win.title("Gridworld")
+            # self.win.bind("<Button>", button_click_exit_mainloop)
+            self.old_screen_label = None
+
         if seed:
             np.random.seed(self.seed)
         a = self.reset()
@@ -34,7 +113,6 @@ class Gridworld():
         state, state_big = self.renderEnv()
         return state_big
 
-
     def set_seed(self, seed):
         self.seed = seed
 
@@ -43,23 +121,22 @@ class Gridworld():
 
     def reset(self):
         while True:
-            goal_color = [np.random.uniform(), np.random.uniform(), np.random.uniform()]
-            if not(goal_color[0] == 0 and goal_color[2] == 0 and goal_color[2] == 1 or
-                goal_color[0] == 1 and goal_color[2] == 1 and goal_color[2] == 0):
+            apple_color = [np.random.uniform(), np.random.uniform(), np.random.uniform()]
+            if apple_color != [0, 0, 1] or apple_color[0] != [1, 1, 0]:
                 break
 
         self.objects = []
-        self.goal_color = goal_color
-        self.other_color = [1 - a for a in self.goal_color]
+        self.apple_color = apple_color
+        self.orange_color = [1 - a for a in self.apple_color]
         self.orientation = 0
         self.hero = gameOb(self.newPosition(0), 1, [0, 0, 1], None, 'hero')
         self.objects.append(self.hero)
-        for i in range(self.sizeX - 1):
-            bug = gameOb(self.newPosition(0), 1, self.goal_color, 1, 'goal')
-            self.objects.append(bug)
-        for i in range(self.sizeX - 1):
-            hole = gameOb(self.newPosition(0), 1, self.other_color, 0, 'fire')
-            self.objects.append(hole)
+        for i in range(self.nb_apples):
+            apple = gameOb(self.newPosition(0), 1, self.apple_color, 1, 'apple')
+            self.objects.append(apple)
+        for i in range(self.nb_oranges):
+            orange = gameOb(self.newPosition(0), 1, self.orange_color, self.orange_reward, 'orange')
+            self.objects.append(orange)
         state, s_big = self.renderEnv()
         self.state = state
         return state, s_big
@@ -130,25 +207,41 @@ class Gridworld():
 
     def checkGoal(self):
         hero = self.objects[0]
-        others = self.objects[1:]
+        fruits = self.objects[1:]
         ended = False
-        for other in others:
-            if hero.x == other.x and hero.y == other.y and hero != other:
-                self.objects.remove(other)
-                if other.reward == 1:
-                    self.objects.append(gameOb(self.newPosition(0), 1, self.goal_color, 1, 'goal'))
-                    return other.reward, False
+        for fruit in fruits:
+            if hero.x == fruit.x and hero.y == fruit.y and hero != fruit:
+                self.objects.remove(fruit)
+                if fruit.reward == 1:
+                    self.objects.append(gameOb(self.newPosition(0), 1, self.apple_color, 1, 'apple'))
+                    return fruit.reward, False
                 else:
-                    self.objects.append(gameOb(self.newPosition(0), 1, self.other_color, 0, 'fire'))
-                    return other.reward, False
+                    self.objects.append(gameOb(self.newPosition(0), 1, self.orange_color, 0, 'orange'))
+                    return fruit.reward, False
         if ended == False:
             return 0.0, False
 
     def render(self):
         state, state_big = self.renderEnv()
+
+        screen = Image.fromarray(state_big, 'RGB')
+        screen = screen.resize((512, 512))
+
+        self.win.geometry('%dx%d' % (screen.size[0], screen.size[1]))
+
+        tkpi = ImageTk.PhotoImage(screen)
+        label_img = tkinter.Label(self.win, image=tkpi)
+        label_img.place(x=0, y=0,
+                        width=screen.size[0], height=screen.size[1])
+
+        # self.win.mainloop()            # wait until user clicks the window
+        self.win.update_idletasks()
+        self.win.update()
+
         # import matplotlib.pyplot as plt
-        pil_image = Image.fromarray(state_big)
-        pil_image.imshow()
+        # pil_image = Image.fromarray(state_big)
+        # pil_image.show()
+        # plt.imshow(state_big)
 
     def renderEnv(self):
         if self.partial == True:
@@ -186,7 +279,7 @@ class Gridworld():
         else:
             goal = None
             for ob in self.objects:
-                if ob.name == 'goal':
+                if ob.name == 'apple':
                     goal = ob
             return state, s_big, (reward + penalty), done, [self.objects[0].y, self.objects[0].x] + [goal.y, goal.x]
 
@@ -200,7 +293,7 @@ if __name__ == '__main__':
     import numpy as np
 
     player_rng = np.random.RandomState(0)
-    game = Gridworld(partial=False, size=10)
+    game = Gridworld(partial=False, size=5, nb_apples=1, nb_oranges=1, internal_render=True)
 
     start = time.time()
     # reward_color = [np.random.uniform(), np.random.uniform(), np.random.uniform()]
@@ -211,7 +304,7 @@ if __name__ == '__main__':
     tot_rw = 0
 
     while True:
-        s1, r, d, _, _ = game.step(player_rng.choice(game.actions))
+        s1, s1_big, r, d, _ = game.step(player_rng.choice(game.actions))
         step += 1
         game.render()
         tot_rw += r
@@ -221,3 +314,6 @@ if __name__ == '__main__':
 
     print("Finished %d episodes in %d steps in %.2f. Total reward: %d.",
           (ep, step, time.time() - start, tot_rw))
+
+
+

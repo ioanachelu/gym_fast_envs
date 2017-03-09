@@ -7,10 +7,10 @@ class FastEnvsGridworld(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
     def __init__(self, game_name='Gridworld', display_screen=False,
-                 partial=False, size=5, seed=None):
+                 partial=False, size=5, non_goal_reward=0, seed=None):
 
-        self.game = Gridworld(partial, size, seed)
-        print("Initialize Gridworld-v0: partial={}, size={}, seed={}.".format(partial, size, seed))
+        self.game = Gridworld(partial, size, non_goal_reward, seed)
+        print("Initialize Gridworld-v0: partial={}, size={}, seed={}, non_goal_reward={}.".format(partial, size, seed, non_goal_reward))
 
         self.action_space = spaces.Discrete(self.game.actions)
         self.screen_width, self.screen_height = 200, 200
@@ -20,7 +20,7 @@ class FastEnvsGridworld(gym.Env):
 
     def _step(self, action):
         observation, obs_big, reward, terminal, info = self.game.step(action)
-        return observation, reward, terminal, info
+        return observation, reward, terminal, {}
 
     def _get_image(self):
         return self.game.get_screen()

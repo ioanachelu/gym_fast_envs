@@ -132,8 +132,8 @@ class RGBRender(Renderer):
         print("Setting up tkinter...")
 
         self.win = tkinter.Tk()
-        self.win.geometry('+%d+%d' % (100, 100))
-        self.win.title("Catcher")
+        self.win.geometry('+%d+%d' % (200, 200))
+        self.win.title("Gridworld")
         # self.win.bind("<Button>", button_click_exit_mainloop)
         self.old_screen_label = None
 
