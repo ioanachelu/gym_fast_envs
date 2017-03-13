@@ -32,7 +32,7 @@ for level in range(6):
 register(
     id='Gridworld-v0',
     entry_point='gym_fast_envs.gym_fast_envs_gridworld:FastEnvsGridworld',
-    kwargs={'game_name': 'Gridworld-v0', 'display_screen': False, 'size': 5, 'non_goal_reward': 0},
+    kwargs={'game_name': 'Gridworld-v0', 'display_screen': False, 'size': 5, 'orange_reward': 0},
     tags={'wrapper_config.TimeLimit.max_episode_steps': 100},
     timestep_limit=100,
     nondeterministic=False,
@@ -41,11 +41,13 @@ register(
 register(
     id='Gridworld-v1',
     entry_point='gym_fast_envs.gym_fast_envs_gridworld:FastEnvsGridworld',
-    kwargs={'game_name': 'Gridworld-v1', 'display_screen': False, 'size': 5, 'non_goal_reward': -1},
+    kwargs={'game_name': 'Gridworld-v0', 'display_screen': False, 'size': 5, 'orange_reward': -1,
+            'nb_oranges': 4, 'nb_apples': 4},
     tags={'wrapper_config.TimeLimit.max_episode_steps': 100},
     timestep_limit=100,
     nondeterministic=False,
 )
+
 # sizes
 for size in (6, 50):
     game = 'Gridworld-x%d-v0' % (size)

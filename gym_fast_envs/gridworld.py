@@ -3,65 +3,12 @@ import random
 import itertools
 import scipy.ndimage
 import scipy.misc
+import time
+import tkinter
 from PIL import Image
-
-# class Renderer(object):
-#     def __init__(self, ball, tray):
-#         self.ball = ball
-#         self.tray = tray
-#
-#     def update(self):
-#         ball_position = self.ball.get_position()
-#         tray_position = self.tray.get_position()
-#
-#         self.screen.fill(self.bg_code)
-#         self.screen[ball_position] = self.ball_code
-#         self.screen[tray_position] = self.tray_code
-#
-# class RGBRender(Renderer):
-#     def __init__(self, canvas, ball, tray, internal_render):
-#         Renderer.__init__(self, ball, tray)
-#
-#         self.screen = np.ndarray(shape=(*canvas.get_size(), 3), dtype=np.uint8)
-#         self.screen.fill(242)
-#
-#         self.bg_code = (242, 242, 242)[0]
-#         self.ball_code = (231, 56, 133)
-#         self.tray_code = (55, 82, 159)
-#
-#         self.internal_render = internal_render
-#
-#         if internal_render is True:
-#             self._init_internal_window()
-#
-#     def get_screen(self):
-#         return self.screen
-#
-#     def _init_internal_window(self):
-#         """ Sets window for internal renderer. """
-#         print("Setting up tkinter...")
-#
-#         self.win = tkinter.Tk()
-#         self.win.geometry('+%d+%d' % (100, 100))
-#         self.win.title("Catcher")
-#         # self.win.bind("<Button>", button_click_exit_mainloop)
-#         self.old_screen_label = None
-#
-#     def render(self):
-#         """Opens a tk window and displays a PIL.Image"""
-#
-#         screen = Image.fromarray(self.screen, 'RGB')
-#         screen = screen.resize((512, 512))
-#         self.win.geometry('%dx%d' % (screen.size[0], screen.size[1]))
-#
-#         tkpi = ImageTk.PhotoImage(screen)
-#         label_img = tkinter.Label(self.win, image=tkpi)
-#         label_img.place(x=0, y=0,
-#                         width=screen.size[0], height=screen.size[1])
-#
-#         # self.win.mainloop()            # wait until user clicks the window
-#         self.win.update_idletasks()
-#         self.win.update()
+from PIL import ImageTk
+import numpy as np
+from PIL import Image
 
 class gameOb():
     def __init__(self, coordinates, size, color, reward, name):
@@ -74,7 +21,7 @@ class gameOb():
 
 
 class Gridworld():
-    def __init__(self, partial, size, nb_apples, nb_oranges, orange_reward=0, seed=None, internal_render=False):
+    def __init__(self, partial, size, nb_apples=1, nb_oranges=1, orange_reward=0, seed=None, internal_render=False):
         self.sizeX = size
         self.sizeY = size
         self.actions = 4
@@ -87,22 +34,22 @@ class Gridworld():
         self.partial = partial
         self.bg = np.zeros([size, size])
         self.seed = seed
-        if internal_render:
-            print("Setting up tkinter...")
 
-            self.win = tkinter.Tk()
 
-            screen_width = root.winfo_screenwidth()
-            screen_height = root.winfo_screenheight()
+        # if internal_render:
+        self.win = tkinter.Toplevel()
 
-            # calculate position x and y coordinates
-            x = (screen_width / 2) - (width / 2)
-            y = (screen_height / 2) - (height / 2)
-            
-            self.win.geometry('+%d+%d' % (200, 200))
-            self.win.title("Gridworld")
-            # self.win.bind("<Button>", button_click_exit_mainloop)
-            self.old_screen_label = None
+        screen_width = self.win.winfo_screenwidth()
+        screen_height = self.win.winfo_screenheight()
+
+        # calculate position x and y coordinates
+        x = screen_width + 100
+        y = screen_height + 100
+
+        self.win.geometry('+%d+%d' % (200, 200))
+        self.win.title("Gridworld")
+        # self.win.bind("<Button>", button_click_exit_mainloop)
+        self.old_screen_label = None
 
         if seed:
             np.random.seed(self.seed)
@@ -222,6 +169,9 @@ class Gridworld():
             return 0.0, False
 
     def render(self):
+
+        time.sleep(0.1)
+
         state, state_big = self.renderEnv()
 
         screen = Image.fromarray(state_big, 'RGB')
