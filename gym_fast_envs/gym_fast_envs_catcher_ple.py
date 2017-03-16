@@ -12,7 +12,7 @@ class FastEnvsCatcherPle(gym.Env):
         game_module_name = ('ple.games.%s' % game_name).lower()
         game_module = importlib.import_module(game_module_name)
         game = getattr(game_module, game_name)()
-        self.game_state = PLE(game, fps=30, display_screen=display_screen, num_steps=4, )
+        self.game_state = PLE(game, fps=30, display_screen=display_screen)
         self.game_state.init()
         self._action_set = self.game_state.getActionSet()
         self.action_space = spaces.Discrete(len(self._action_set))
