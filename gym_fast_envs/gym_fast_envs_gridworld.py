@@ -34,8 +34,8 @@ class FastEnvsGridworld(gym.Env):
     def _reset(self):
         self.observation_space = spaces.Box(
             low=0, high=255, shape=(self.screen_width, self.screen_height, 3))
-        observation, obs_big = self.game.reset()
-        return observation
+        observation, _, _, info = self.game.reset()
+        return observation, None, None, info
 
     def _render(self, mode='human', close=False):
         # self.game.render()

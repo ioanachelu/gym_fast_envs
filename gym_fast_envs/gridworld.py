@@ -72,6 +72,11 @@ class Gridworld():
             if apple_color != [0, 0, 1] or apple_color[0] != [1, 1, 0]:
                 break
 
+        for ob in self.objects:
+            if ob.name == 'apple':
+                zagoal = ob
+                break
+
         self.objects = []
         self.apple_color = apple_color
         self.orange_color = [1 - a for a in self.apple_color]
@@ -86,7 +91,7 @@ class Gridworld():
             self.objects.append(orange)
         state, s_big = self.renderEnv()
         self.state = state
-        return state, s_big
+        return state, None, None, {"goal": (zagoal.y, zagoal.x), "hero": (self.hero.y, self.hero.x), "grid": (self.sizeY, self.sizeX)}
 
     def moveChar(self, action):
         # 0 - up, 1 - down, 2 - left, 3 - right, 4 - 90 counter-clockwise, 5 - 90 clockwise
@@ -221,17 +226,24 @@ class Gridworld():
         penalty = self.moveChar(action)
         reward, done = self.checkGoal()
         state, s_big = self.renderEnv()
+
+        for ob in self.objects:
+            if ob.name == 'apple':
+                zagoal = ob
+                break
+
         if reward == None:
             print(done)
             print(reward)
             print(penalty)
-            return state, (reward + penalty), done
+            return state, (reward + penalty), done, {"goal": (zagoal.y, zagoal.x), "hero": (self.hero.y, self.hero.x), "grid": (self.sizeY, self.sizeX)}
         else:
             goal = None
             for ob in self.objects:
                 if ob.name == 'apple':
                     goal = ob
-            return state, s_big, (reward + penalty), done, [self.objects[0].y, self.objects[0].x] + [goal.y, goal.x]
+            # return state, s_big, (reward + penalty), done, [self.objects[0].y, self.objects[0].x] + [goal.y, goal.x]
+            return state, s_big, (reward + penalty), done, {"goal": (zagoal.y, zagoal.x), "hero": (self.hero.y, self.hero.x), "grid": (self.sizeY, self.sizeX)}
 
 
 if __name__ == '__main__':
