@@ -72,11 +72,6 @@ class Gridworld():
             if apple_color != [0, 0, 1] or apple_color[0] != [1, 1, 0]:
                 break
 
-        for ob in self.objects:
-            if ob.name == 'apple':
-                zagoal = ob
-                break
-
         self.objects = []
         self.apple_color = apple_color
         self.orange_color = [1 - a for a in self.apple_color]
@@ -91,6 +86,12 @@ class Gridworld():
             self.objects.append(orange)
         state, s_big = self.renderEnv()
         self.state = state
+
+        for ob in self.objects:
+            if ob.name == 'apple':
+                zagoal = ob
+                break
+
         return state, None, None, {"goal": (zagoal.y, zagoal.x), "hero": (self.hero.y, self.hero.x), "grid": (self.sizeY, self.sizeX)}
 
     def moveChar(self, action):

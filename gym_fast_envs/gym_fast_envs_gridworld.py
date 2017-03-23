@@ -38,20 +38,21 @@ class FastEnvsGridworld(gym.Env):
         return observation, None, None, info
 
     def _render(self, mode='human', close=False):
+        pass
         # self.game.render()
-        if close:
-            if self.viewer is not None:
-                self.viewer.close()
-                self.viewer = None
-            return
-        img = self._get_image()
-        if mode == 'rgb_array':
-            return img
-        elif mode == 'human':
-            from gym.envs.classic_control import rendering
-            if self.viewer is None:
-                self.viewer = rendering.SimpleImageViewer()
-            self.viewer.imshow(img)
+        # if close:
+        #     if self.viewer is not None:
+        #         self.viewer.close()
+        #         self.viewer = None
+        #     return
+        # img = self._get_image()
+        # if mode == 'rgb_array':
+        #     return img
+        # elif mode == 'human':
+        #     from gym.envs.classic_control import rendering
+        #     if self.viewer is None:
+        #         self.viewer = rendering.SimpleImageViewer()
+        #     self.viewer.imshow(img)
 
     def _seed(self, seed):
         self.game.set_seed(seed)
