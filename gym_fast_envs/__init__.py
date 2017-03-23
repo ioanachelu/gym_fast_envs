@@ -5,7 +5,15 @@ from gym.envs.registration import registry, register, make, spec
 register(
     id='Catcher-v0',
     entry_point='gym_fast_envs.gym_fast_envs_catcher:FastEnvsCatcher',
-    kwargs={'game_name': 'Catcher-v0', 'display_screen': False, 'level': 2, 'meta_level': 0},
+    kwargs={'game_name': 'CatcherFlorin-v0', 'display_screen': False, 'level': 0, 'meta_level': 0},
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 10000},
+    nondeterministic=False,
+)
+
+register(
+    id='CatcherPle-v0',
+    entry_point='gym_fast_envs.gym_fast_envs_catcher_ple:FastEnvsCatcherPle',
+    kwargs={'game_name': 'Catcher', 'display_screen': False},
     tags={'wrapper_config.TimeLimit.max_episode_steps': 10000},
     nondeterministic=False,
 )
@@ -41,7 +49,27 @@ register(
 register(
     id='Gridworld-v1',
     entry_point='gym_fast_envs.gym_fast_envs_gridworld:FastEnvsGridworld',
-    kwargs={'game_name': 'Gridworld-v0', 'display_screen': False, 'size': 5, 'orange_reward': -1,
+    kwargs={'game_name': 'Gridworld-v0', 'display_screen': False, 'size': 5, 'orange_reward': 0,
+            'nb_oranges': 2, 'nb_apples': 2},
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 100},
+    timestep_limit=100,
+    nondeterministic=False,
+)
+
+register(
+    id='Gridworld-v2',
+    entry_point='gym_fast_envs.gym_fast_envs_gridworld:FastEnvsGridworld',
+    kwargs={'game_name': 'Gridworld-v0', 'display_screen': False, 'size': 10, 'orange_reward': 0,
+            'nb_oranges': 1, 'nb_apples': 1},
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 100},
+    timestep_limit=100,
+    nondeterministic=False,
+)
+
+register(
+    id='Gridworld-v3',
+    entry_point='gym_fast_envs.gym_fast_envs_gridworld:FastEnvsGridworld',
+    kwargs={'game_name': 'Gridworld-v0', 'display_screen': False, 'size': 5, 'orange_reward': 0,
             'nb_oranges': 4, 'nb_apples': 4},
     tags={'wrapper_config.TimeLimit.max_episode_steps': 100},
     timestep_limit=100,
