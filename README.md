@@ -1,11 +1,11 @@
 # gym_fast_envs
-An implementation of Catcher I wrote when learning Python. Gym wrapper inspired by [gym_ple](https://github.com/lusob/gym-ple/tree/master/gym_ple)
+Gym environments for meta learning:
+
+* Catcher with 2 meta levels: one you have to avoid fruits and one you have to catch them
+* Gridworld with various sizes and diffrent number of colored squares
 
 ### Installation
 ```
-git clone https://github.com/floringogianu/gym_fast_envs
-cd gym_fast_envs
-
 pip install -r requirements.txt
 pip install -e .
 ```
