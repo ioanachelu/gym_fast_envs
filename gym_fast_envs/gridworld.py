@@ -21,7 +21,7 @@ class gameOb():
 
 
 class Gridworld():
-    def __init__(self, partial, size, nb_apples=1, nb_oranges=1, orange_reward=0, seed=None, internal_render=False):
+    def __init__(self, partial, size, nb_apples=1, nb_oranges=1, orange_reward=0, seed=None, max_steps=400, internal_render=False):
         self.sizeX = size
         self.sizeY = size
         self.actions = 4
@@ -34,6 +34,7 @@ class Gridworld():
         self.partial = partial
         self.bg = np.zeros([size, size])
         self.seed = seed
+        self.max_steps = max_steps
 
 
         # if internal_render:
@@ -224,6 +225,9 @@ class Gridworld():
         return a, a_big
 
     def step(self, action):
+
+        self.max_steps -= 1
+
         penalty = self.moveChar(action)
         reward, done = self.checkGoal()
         state, s_big = self.renderEnv()
@@ -233,11 +237,14 @@ class Gridworld():
                 zagoal = ob
                 break
 
+        if self.max_steps == 0:
+            done = True
+
         if reward == None:
             print(done)
             print(reward)
             print(penalty)
-            return state, (reward + penalty), done, {"goal": (zagoal.y, zagoal.x), "hero": (self.hero.y, self.hero.x), "grid": (self.sizeY, self.sizeX)}
+            return state, s_big, (reward + penalty), done, {"goal": (zagoal.y, zagoal.x), "hero": (self.hero.y, self.hero.x), "grid": (self.sizeY, self.sizeX)}
         else:
             goal = None
             for ob in self.objects:
