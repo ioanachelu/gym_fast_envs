@@ -48,29 +48,8 @@ register(
 
 register(
     id='Gridworld-v1',
-    entry_point='gym_fast_envs.gym_fast_envs_gridworld:FastEnvsGridworld',
-    kwargs={'game_name': 'Gridworld-v0', 'display_screen': False, 'size': 5, 'orange_reward': 0,
-            'nb_oranges': 2, 'nb_apples': 2},
-    tags={'wrapper_config.TimeLimit.max_episode_steps': 100},
-    timestep_limit=100,
-    nondeterministic=False,
-)
-
-register(
-    id='Gridworld-v2',
-    entry_point='gym_fast_envs.gym_fast_envs_gridworld:FastEnvsGridworld',
-    kwargs={'game_name': 'Gridworld-v0', 'display_screen': False, 'size': 10, 'orange_reward': 0,
-            'nb_oranges': 1, 'nb_apples': 1},
-    tags={'wrapper_config.TimeLimit.max_episode_steps': 100},
-    timestep_limit=100,
-    nondeterministic=False,
-)
-
-register(
-    id='Gridworld-v3',
-    entry_point='gym_fast_envs.gym_fast_envs_gridworld:FastEnvsGridworld',
-    kwargs={'game_name': 'Gridworld-v0', 'display_screen': False, 'size': 5, 'orange_reward': 0,
-            'nb_oranges': 4, 'nb_apples': 4},
+    entry_point='gym_fast_envs.gym_fast_envs_gridworld:FastEnvsGridworldNonMatching',
+    kwargs={'game_name': 'Gridworld-v1', 'display_screen': False, 'size': 5, 'orange_reward': 0},
     tags={'wrapper_config.TimeLimit.max_episode_steps': 100},
     timestep_limit=100,
     nondeterministic=False,
