@@ -49,7 +49,7 @@ register(
 register(
     id='Gridworld-v2',
     entry_point='gym_fast_envs.gym_fast_envs_gridworld:FastEnvsGridworld',
-    kwargs={'game_name': 'Gridworld-v3', 'display_screen': False, 'size': 5, 'orange_reward': 0, 'deterministic': True},
+    kwargs={'game_name': 'Gridworld-v2', 'display_screen': False, 'size': 5, 'orange_reward': 0, 'deterministic': True},
     tags={'wrapper_config.TimeLimit.max_episode_steps': 10000},
     timestep_limit=10000,
     nondeterministic=False,
@@ -68,6 +68,7 @@ register(
 # sizes
 for size in (10, 20, 30, 40, 50):
     game = 'Gridworld-x%d-v0' % (size)
+    game2 = 'Gridworld-x%d-v2' % (size)
 
     register(
         id=game,
@@ -75,5 +76,15 @@ for size in (10, 20, 30, 40, 50):
         kwargs={'game_name': game, 'display_screen': False, 'orange_reward': 0,
                 'size': size},
         tags={'wrapper_config.TimeLimit.max_episode_steps': 10000},
+        nondeterministic=False,
+    )
+
+    register(
+        id=game2,
+        entry_point='gym_fast_envs.gym_fast_envs_gridworld:FastEnvsGridworld',
+        kwargs={'game_name': game2, 'display_screen': False, 'size': size, 'orange_reward': 0,
+                'deterministic': True},
+        tags={'wrapper_config.TimeLimit.max_episode_steps': 10000},
+        timestep_limit=10000,
         nondeterministic=False,
     )
