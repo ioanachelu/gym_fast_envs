@@ -20,9 +20,10 @@ class gameOb():
         self.name = name
 
 
-class Gridworld():
-    def __init__(self, partial, size, nb_apples=1, nb_oranges=1, orange_reward=0, seed=None, deterministic=False, internal_render=False):
+class Gridworld_2rooms():
+    def __init__(self, partial, size, nb_apples=1, nb_oranges=1, orange_reward=0, seed=None, max_steps=400, internal_render=False):
         self.sizeX = size
+        self.sizeX_rooms = 2*size + 1
         self.sizeY = size
         self.actions = 4
         self.max_apples = self.sizeX - 1
@@ -32,9 +33,11 @@ class Gridworld():
         self.objects = []
         self.orange_reward = orange_reward
         self.partial = partial
-        self.bg = np.zeros([size, size])
+        self.bg = np.zeros([self.sizeY, self.sizeX_rooms])
         self.seed = seed
-        self.deterministic = deterministic
+        self.max_steps = max_steps
+        self.non_matching_goal = -1
+
 
         # if internal_render:
         self.win = tkinter.Toplevel()
@@ -46,7 +49,7 @@ class Gridworld():
         x = screen_width + 100
         y = screen_height + 100
 
-        self.win.geometry('+%d+%d' % (200, 200))
+        self.win.geometry('+%d+%d' % (200, 400))
         self.win.title("Gridworld")
         # self.win.bind("<Button>", button_click_exit_mainloop)
         self.old_screen_label = None
@@ -66,16 +69,18 @@ class Gridworld():
     def getFeatures(self):
         return np.array([self.objects[0].x, self.objects[0].y]) / float(self.sizeX)
 
+    def block_position(self, b):
+        position = (self.sizeX, b)
+        return position
+
     def reset(self):
-        if self.deterministic:
-            apple_color = [0, 1, 0]
-        else:
-            while True:
-                apple_color = [np.random.uniform(), np.random.uniform(), np.random.uniform()]
-                if apple_color != [0, 0, 1] or apple_color[0] != [1, 1, 0]:
-                    break
+        while True:
+            apple_color = [np.random.uniform(), np.random.uniform(), np.random.uniform()]
+            if apple_color != [0, 0, 1] or apple_color[0] != [1, 1, 0]:
+                break
 
         self.objects = []
+        self.block_color = [1, 1, 1]
         self.apple_color = apple_color
         self.orange_color = [1 - a for a in self.apple_color]
         self.orientation = 0
@@ -84,9 +89,18 @@ class Gridworld():
         for i in range(self.nb_apples):
             apple = gameOb(self.newPosition(0), 1, self.apple_color, 1, 'apple')
             self.objects.append(apple)
+            apple = gameOb(self.newPosition(0, True), 1, self.orange_color, 1, 'apple_2room')
+            self.objects.append(apple)
         for i in range(self.nb_oranges):
             orange = gameOb(self.newPosition(0), 1, self.orange_color, self.orange_reward, 'orange')
             self.objects.append(orange)
+            orange = gameOb(self.newPosition(0, True), 1, self.apple_color, self.orange_reward, 'orange_2room')
+            self.objects.append(orange)
+        for i in range(self.sizeY):
+            if i == self.sizeY // 2:
+                continue
+            block = gameOb(self.block_position(i), 1, self.block_color, self.block_color, 'block')
+            self.objects.append(block)
         state, s_big = self.renderEnv()
         self.state = state
 
@@ -151,7 +165,7 @@ class Gridworld():
         self.objects[0] = hero
         return penalize
 
-    def newPosition(self, sparcity):
+    def newPosition(self, sparcity, room_2=False):
         iterables = [list(range(self.sizeX)), list(range(self.sizeY))]
         points = []
         for t in itertools.product(*iterables):
@@ -159,6 +173,10 @@ class Gridworld():
         for objectA in self.objects:
             if (objectA.x, objectA.y) in points: points.remove((objectA.x, objectA.y))
         location = np.random.choice(list(range(len(points))), replace=False)
+        if room_2:
+            x, y = points[location]
+            x += self.sizeX
+            return (x, y)
         return points[location]
 
     def checkGoal(self):
@@ -184,7 +202,7 @@ class Gridworld():
         state, state_big = self.renderEnv()
 
         screen = Image.fromarray(state_big, 'RGB')
-        screen = screen.resize((512, 512))
+        screen = screen.resize((512, 256))
 
         self.win.geometry('%dx%d' % (screen.size[0], screen.size[1]))
 
@@ -209,7 +227,7 @@ class Gridworld():
             a[padding:-padding, padding:-padding, :] = 0
             a[padding:-padding, padding:-padding, :] += np.dstack([self.bg, self.bg, self.bg])
         else:
-            a = np.zeros([self.sizeY, self.sizeX, 3])
+            a = np.zeros([self.sizeY, self.sizeX_rooms, 3])
             padding = 0
             a += np.dstack([self.bg, self.bg, self.bg])
         try:
@@ -223,10 +241,13 @@ class Gridworld():
             #    hero = item
         if self.partial == True:
             a = a[(hero.y):(hero.y + (padding * 2) + hero.size), (hero.x):(hero.x + (padding * 2) + hero.size), :]
-        a_big = scipy.misc.imresize(a, [200, 200, 3], interp='nearest')
+        a_big = scipy.misc.imresize(a, [200, 400, 3], interp='nearest')
         return a, a_big
 
     def step(self, action):
+
+        self.max_steps -= 1
+
         penalty = self.moveChar(action)
         reward, done = self.checkGoal()
         state, s_big = self.renderEnv()
@@ -236,11 +257,14 @@ class Gridworld():
                 zagoal = ob
                 break
 
+        if self.max_steps == 0:
+            done = True
+
         if reward == None:
             print(done)
             print(reward)
             print(penalty)
-            return state, (reward + penalty), done, {"goal": (zagoal.y, zagoal.x), "hero": (self.hero.y, self.hero.x), "grid": (self.sizeY, self.sizeX)}
+            return state, s_big, (reward + penalty), done, {"goal": (zagoal.y, zagoal.x), "hero": (self.hero.y, self.hero.x), "grid": (self.sizeY, self.sizeX)}
         else:
             goal = None
             for ob in self.objects:
@@ -259,7 +283,7 @@ if __name__ == '__main__':
     import numpy as np
 
     player_rng = np.random.RandomState(0)
-    game = Gridworld(partial=False, size=5, nb_apples=1, nb_oranges=1, internal_render=True)
+    game = Gridworld_2rooms(partial=False, size=5, nb_apples=1, nb_oranges=1, internal_render=True)
 
     start = time.time()
     # reward_color = [np.random.uniform(), np.random.uniform(), np.random.uniform()]
@@ -276,7 +300,7 @@ if __name__ == '__main__':
         tot_rw += r
         if d:
             ep += 1
-            s, s_big = game.reset()
+            s, s_big, _, _ = game.reset()
 
     print("Finished %d episodes in %d steps in %.2f. Total reward: %d.",
           (ep, step, time.time() - start, tot_rw))
