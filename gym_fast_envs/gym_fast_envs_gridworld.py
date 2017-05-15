@@ -1,7 +1,7 @@
 import gym
 from gym import spaces
 from gym_fast_envs.gridworld import Gridworld
-
+import numpy as np
 
 class FastEnvsGridworld(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
@@ -9,7 +9,7 @@ class FastEnvsGridworld(gym.Env):
     def __init__(self, game_name='Gridworld', display_screen=False,
                  partial=False, size=5, nb_apples=1, nb_oranges=1, orange_reward=0, deterministic=False, seed=None):
 
-        self.game = Gridworld(partial, size, nb_apples, nb_oranges, orange_reward, seed, deterministic)
+        self.game = Gridworld(partial, size, nb_apples, nb_oranges, orange_reward, seed, )
         print("Initialize Gridworld-v0: partial={}, size={}, seed={},"
               "nb_apples={}, nb_oranges={}, orange_reward={}.".format(partial, size, seed,
                                                                       nb_apples, nb_oranges, orange_reward))
@@ -38,21 +38,26 @@ class FastEnvsGridworld(gym.Env):
         return observation, None, None, info
 
     def _render(self, mode='human', close=False):
-        pass
+        # pass
         # self.game.render()
-        # if close:
-        #     if self.viewer is not None:
-        #         self.viewer.close()
-        #         self.viewer = None
-        #     return
+        if close:
+            if self.viewer is not None:
+                self.viewer.close()
+                self.viewer = None
+            return
+        state, state_big = self.game.renderEnv()
+        img = state_big.astype(np.uint8)
+
+        # img = Image.fromarray(state_big, 'RGB')
+        # img = screen.resize((512, 512))
         # img = self._get_image()
-        # if mode == 'rgb_array':
-        #     return img
-        # elif mode == 'human':
-        #     from gym.envs.classic_control import rendering
-        #     if self.viewer is None:
-        #         self.viewer = rendering.SimpleImageViewer()
-        #     self.viewer.imshow(img)
+        if mode == 'rgb_array':
+            return img
+        elif mode == 'human':
+            from gym.envs.classic_control import rendering
+            if self.viewer is None:
+                self.viewer = rendering.SimpleImageViewer()
+            self.viewer.imshow(img)
 
     def _seed(self, seed):
         self.game.set_seed(seed)

@@ -75,7 +75,7 @@ for size in (10, 20, 30, 40, 50):
         entry_point='gym_fast_envs.gym_fast_envs_gridworld:FastEnvsGridworld',
         kwargs={'game_name': game, 'display_screen': False, 'orange_reward': 0,
                 'size': size},
-        tags={'wrapper_config.TimeLimit.max_episode_steps': 10000},
+        tags={'wrapper_config.TimeLimit.max_episode_steps': 100},
         nondeterministic=False,
     )
 
