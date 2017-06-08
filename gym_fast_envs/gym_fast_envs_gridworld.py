@@ -9,10 +9,10 @@ class FastEnvsGridworld(gym.Env):
     def __init__(self, game_name='Gridworld', display_screen=False,
                  partial=False, size=5, nb_apples=1, nb_oranges=1, orange_reward=0, deterministic=False, seed=None):
 
-        self.game = Gridworld(partial, size, nb_apples, nb_oranges, orange_reward, seed, )
+        self.game = Gridworld(partial, size, nb_apples, nb_oranges, orange_reward, seed, deterministic)
         print("Initialize Gridworld-v0: partial={}, size={}, seed={},"
-              "nb_apples={}, nb_oranges={}, orange_reward={}.".format(partial, size, seed,
-                                                                      nb_apples, nb_oranges, orange_reward))
+              "nb_apples={}, nb_oranges={}, orange_reward={}, deterministic={}.".format(partial, size, seed,
+                                                                      nb_apples, nb_oranges, orange_reward, deterministic))
 
         self.action_space = spaces.Discrete(self.game.actions)
         self.screen_width, self.screen_height = 200, 200
