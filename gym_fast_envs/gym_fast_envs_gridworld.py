@@ -22,7 +22,7 @@ class FastEnvsGridworld(gym.Env):
 
     def _step(self, action):
         observation, obs_big, reward, terminal, info = self.game.step(action)
-        return observation, reward, terminal, {}
+        return observation, reward, terminal, info
 
     def _get_image(self):
         return self.game.renderEnv()[1]
