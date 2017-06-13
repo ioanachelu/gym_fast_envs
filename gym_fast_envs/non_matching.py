@@ -21,7 +21,7 @@ class gameOb():
 
 
 class Gridworld_NonMatching():
-    def __init__(self, partial, size, nb_apples=1, nb_oranges=1, orange_reward=0, seed=None, internal_render=False):
+    def __init__(self, partial, size, nb_apples=1, nb_oranges=1, orange_reward=0, seed=None, deterministic=False, internal_render=False):
         self.sizeX = size
         self.sizeY = size
         self.actions = 4
@@ -29,6 +29,7 @@ class Gridworld_NonMatching():
         self.max_oranges = self.sizeX - 1
         self.nb_apples = nb_apples
         self.nb_oranges = nb_oranges
+        self.deterministic = deterministic
 
         self.objects = []
         self.orange_reward = orange_reward
@@ -68,10 +69,13 @@ class Gridworld_NonMatching():
         return np.array([self.objects[0].x, self.objects[0].y]) / float(self.sizeX)
 
     def reset(self):
-        while True:
-            apple_color = [np.random.uniform(), np.random.uniform(), np.random.uniform()]
-            if apple_color != [0, 0, 1] and apple_color[0] != [1, 1, 0] and apple_color != [1, 1, 1] and apple_color != [0, 0, 0]:
-                break
+        if self.deterministic:
+            apple_color = [0, 1, 0]
+        else:
+            while True:
+                apple_color = [np.random.uniform(), np.random.uniform(), np.random.uniform()]
+                if apple_color != [0, 0, 1] and apple_color[0] != [1, 1, 0] and apple_color != [1, 1, 1] and apple_color != [0, 0, 0]:
+                    break
         self.choice_first_room = np.random.choice(2, 1)
         self.objects = []
         self.apple_color = apple_color
@@ -85,7 +89,8 @@ class Gridworld_NonMatching():
         # for i in range(self.nb_oranges):
         #     orange = gameOb(self.newPosition(0), 1, self.orange_color, self.orange_reward, 'orange')
         #     self.objects.append(orange)
-        self.objects.append(gameOb(self.newPosition(0), 1, [1, 1, 1], 1, 'teleporter'))
+        self.teleporter = gameOb(self.newPosition(0), 1, [1, 1, 1], 1, 'teleporter')
+        self.objects.append(self.teleporter)
         if self.choice_first_room[0]:
             obj = gameOb(self.newPosition(0), 1, self.apple_color, 0, 'apple')
         else:
@@ -101,7 +106,7 @@ class Gridworld_NonMatching():
 
         # return state, None, None, {"goal": (zagoal.y, zagoal.x), "hero": (self.hero.y, self.hero.x), "grid": (self.sizeY, self.sizeX)}
         self.first_room = True
-        return state, None
+        return state, None, None, {"goal": (self.teleporter.y, self.teleporter.x), "hero": (self.hero.y, self.hero.x), "grid": (self.sizeY, self.sizeX)}
 
     def moveChar(self, action):
         # 0 - up, 1 - down, 2 - left, 3 - right, 4 - 90 counter-clockwise, 5 - 90 clockwise
@@ -255,23 +260,36 @@ class Gridworld_NonMatching():
         reward, done = self.checkGoal()
         state, s_big = self.renderEnv()
 
-        for ob in self.objects:
-            if ob.name == 'apple':
-                zagoal = ob
-                break
+        # for ob in self.objects:
+        #     if ob.name == 'apple':
+        #         zagoal = ob
+        #         break
+        zagoal = None
+        if self.first_room:
+            zagoal = self.teleporter
+        else:
+            for ob in self.objects:
+                if self.choice_first_room[0] and ob.name == 'orange':
+                    zagoal = ob
+                    break
+                elif not self.choice_first_room[0] and ob.name == 'apple':
+                    zagoal = ob
+                    break
+
 
         if reward == None:
             print(done)
             print(reward)
             print(penalty)
-            return state, (reward + penalty), done, {}
+            if done:
+                return state, s_big, (reward + penalty), done, {}
+            return state, (reward + penalty), done, {"goal": (zagoal.y, zagoal.x), "hero": (self.hero.y, self.hero.x), "grid": (self.sizeY, self.sizeX)}
         else:
-            goal = None
-            for ob in self.objects:
-                if ob.name == 'apple':
-                    goal = ob
+
+            if done:
+                return state, s_big, (reward + penalty), done, {}
             # return state, s_big, (reward + penalty), done, [self.objects[0].y, self.objects[0].x] + [goal.y, goal.x]
-            return state, s_big, (reward + penalty), done, {}
+            return state, s_big, (reward + penalty), done, {"goal": (zagoal.y, zagoal.x), "hero": (self.hero.y, self.hero.x), "grid": (self.sizeY, self.sizeX)}
 
 
 if __name__ == '__main__':
