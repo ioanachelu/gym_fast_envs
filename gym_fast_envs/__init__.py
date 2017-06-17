@@ -41,8 +41,8 @@ register(
     id='Gridworld-v0',
     entry_point='gym_fast_envs.gym_fast_envs_gridworld:FastEnvsGridworld',
     kwargs={'game_name': 'Gridworld-v0', 'display_screen': False, 'size': 5, 'orange_reward': 0},
-    tags={'wrapper_config.TimeLimit.max_episode_steps': 10000},
-    timestep_limit=10000,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 100},
+    timestep_limit=100,
     nondeterministic=False,
 )
 
