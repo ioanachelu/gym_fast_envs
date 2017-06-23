@@ -211,20 +211,20 @@ class Gridworld_NonMatching():
         time.sleep(0.1)
 
         state, state_big = self.renderEnv()
-
-        screen = Image.fromarray(state_big, 'RGB')
-        screen = screen.resize((512, 512))
-
-        self.win.geometry('%dx%d' % (screen.size[0], screen.size[1]))
-
-        tkpi = ImageTk.PhotoImage(screen)
-        label_img = tkinter.Label(self.win, image=tkpi)
-        label_img.place(x=0, y=0,
-                        width=screen.size[0], height=screen.size[1])
-
-        # self.win.mainloop()            # wait until user clicks the window
-        self.win.update_idletasks()
-        self.win.update()
+        #
+        # screen = Image.fromarray(state_big, 'RGB')
+        # screen = screen.resize((512, 512))
+        #
+        # self.win.geometry('%dx%d' % (screen.size[0], screen.size[1]))
+        #
+        # tkpi = ImageTk.PhotoImage(screen)
+        # label_img = tkinter.Label(self.win, image=tkpi)
+        # label_img.place(x=0, y=0,
+        #                 width=screen.size[0], height=screen.size[1])
+        #
+        # # self.win.mainloop()            # wait until user clicks the window
+        # self.win.update_idletasks()
+        # self.win.update()
 
         # import matplotlib.pyplot as plt
         # pil_image = Image.fromarray(state_big)
