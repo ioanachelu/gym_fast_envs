@@ -1,6 +1,6 @@
 import gym
 from gym import spaces
-from gym_fast_envs.non_matching import Gridworld_NonMatching
+from gym_fast_envs.gridworld_4rooms import Gridworld_4Rooms
 import numpy as np
 
 class FastEnvsGridworld4Rooms(gym.Env):
@@ -38,23 +38,10 @@ class FastEnvsGridworld4Rooms(gym.Env):
     def _render(self, mode='human', close=False):
         # pass
         # self.game.render()
-        # if close:
-        #     if self.viewer is not None:
-        #         self.viewer.close()
-        #         self.viewer = None
-        #     return
-        # img = self._get_image()
-        # if mode == 'rgb_array':
-        #     return img
-        # elif mode == 'human':
-        #     from gym.envs.classic_control import rendering
-        #     if self.viewer is None:
-        #         self.viewer = rendering.SimpleImageViewer()
-        #     self.viewer.imshow(img)
         if close:
-            if self.viewer is not None:
-                self.viewer.close()
-                self.viewer = None
+            # if self.viewer is not None:
+            #     self.viewer.close()
+            #     self.viewer = None
             return
         state, state_big = self.game.renderEnv()
         img = state_big.astype(np.uint8)
