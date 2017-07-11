@@ -68,8 +68,8 @@ register(
     id='4Rooms-v0',
     entry_point='gym_fast_envs.gym_fast_envs_4rooms:FastEnvsGridworld4Rooms',
     kwargs={'game_name': '4Rooms-v0', 'display_screen': False, 'deterministic': True},
-    tags={'wrapper_config.TimeLimit.max_episode_steps': 100},
-    timestep_limit=100,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 400},
+    timestep_limit=400,
     nondeterministic=False,
 )
 
