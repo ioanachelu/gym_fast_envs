@@ -31,7 +31,7 @@ class Gridworld_4Rooms():
     def __init__(self, partial, seed=None, deterministic=False, internal_render=False):
         self.room_sizes = [[7, 7], [7, 7], [7, 7], [7, 7]]
         self.actions = 4
-        self.deterministic = True
+        self.deterministic = deterministic
 
         self.objects = []
         self.partial = partial
@@ -40,9 +40,8 @@ class Gridworld_4Rooms():
         self.crt_room = 0
         self.rooms = [0, 1, 2, 3]
         self.gateways = [[[2, 0], [6, 4]], [[0, 4], [3, 0]], [[2, 6], [6, 3]], [[0, 3], [3, 6]]]
-        self.move_to = [[2, 1], [0, 3], [0, 3], [2, 1]]
-        self.goal_room = 3
-        self.goal_location = (4, 2)
+        self.move_to = [[[2, (2, 6)], [1, (0, 4)]], [[0, (6, 4)], [3, (3, 6)]], [[0, (2, 0)], [3, (0, 3)]], [[2, (6, 3)], [1, (3, 0)]]]
+        self.goal_locations = [(x, y) for x in range(1, self.room_sizes[0][0] - 1) for y in range(1, self.room_sizes[0][1] - 1)]
 
 
         self.block_positions = []
@@ -57,7 +56,18 @@ class Gridworld_4Rooms():
             block_positions.remove(self.gateways[r][1])
             block_positions = list(uniq(block_positions))
             self.block_positions.append(block_positions)
-               
+
+        if self.deterministic:
+            self.goal_room = 3
+        else:
+            self.goal_room = np.random.choice(self.rooms, replace=False)
+
+        if self.deterministic:
+            self.goal_location = (4, 2)
+        else:
+            self.goal_location = self.goal_locations[np.random.randint(len(self.goal_locations), size=1)[0]]
+            # self.goal_location = np.random.choice(self.goal_locations, replace=False)
+
         # if internal_render:
         self.win = tkinter.Toplevel()
 
@@ -103,6 +113,17 @@ class Gridworld_4Rooms():
         self.objects = []
         self.orientation = 0
         self.hero = gameOb(location, 1, [0, 0, 1], None, 'hero')
+
+        if self.deterministic:
+            self.goal_room = 3
+        else:
+            self.goal_room = np.random.choice(self.rooms, replace=False)
+
+        if self.deterministic:
+            self.goal_location = (4, 2)
+        else:
+            self.goal_location = self.goal_locations[np.random.randint(len(self.goal_locations), size=1)[0]]
+
         if self.crt_room == self.goal_room:
             self.goal = gameOb(self.goal_location, 1, [1, 0, 0], None, 'goal')
             self.objects.append(self.goal)
@@ -191,13 +212,14 @@ class Gridworld_4Rooms():
                 if ob.name == 'goal':
                     self.objects.remove(ob)
                     break
-            return 1.0, True
+            return 100.0, True
 
-        return 0.0, False
+        return -1.0, False
 
     def move_to_next_room(self, i):
-        self.crt_room = self.move_to[self.crt_room][i]
+        self.crt_room, next_hero_pos = self.move_to[self.crt_room][i]
         self.objects = self.objects[:1]
+        self.objects[0].x, self.objects[0].y = next_hero_pos
         for bp in self.block_positions[self.crt_room]:
             self.objects.append(gameOb(bp, 1, [0.5, 0.5, 0.5], None, 'block'))
         if self.crt_room == self.goal_room:
@@ -220,6 +242,17 @@ class Gridworld_4Rooms():
         h = self.room_sizes[self.crt_room][1] * 40
         a, b = (sw - w) / 2, (sh - h) / 2
         self.win.geometry('%dx%d%+d+%d' % (sw, sh, a, b))
+
+        # screen = Image.fromarray(state, 'RGB')
+        # screen = screen.resize((self.room_sizes[self.crt_room][0], self.room_sizes[self.crt_room][1]))
+        #
+        # # self.win.geometry('%dx%d' % (screen.size[0], screen.size[1]))
+        # sw = self.win.winfo_screenwidth()
+        # sh = self.win.winfo_screenheight()
+        # w = self.room_sizes[self.crt_room][0]
+        # h = self.room_sizes[self.crt_room][1]
+        # a, b = (sw - w) / 2, (sh - h) / 2
+        # self.win.geometry('%dx%d%+d+%d' % (sw, sh, a, b))
 
         tkpi = ImageTk.PhotoImage(screen)
         label_img = tkinter.Label(self.win, image=tkpi)
@@ -256,30 +289,20 @@ class Gridworld_4Rooms():
             #    hero = item
         if self.partial == True:
             a = a[(hero.y):(hero.y + (padding * 2) + hero.size), (hero.x):(hero.x + (padding * 2) + hero.size), :]
-        a_big = scipy.misc.imresize(a, [self.room_sizes[self.crt_room][0] * 40, self.room_sizes[self.crt_room][1] * 40, 3], interp='nearest')
+        # orig_image = Image.fromarray(a, "RGB")
+        # orig_image = orig_image.resize((self.room_sizes[self.crt_room][0] * 40, self.room_sizes[self.crt_room][1] * 40), Image.NEAREST)
+        # a_big = list(orig_image.getdata())
+        a_big = scipy.misc.imresize(a * 255, [self.room_sizes[self.crt_room][0] * 40, self.room_sizes[self.crt_room][1] * 40, 3], interp='nearest')
+        # a_big = cv2.resize(a, (self.room_sizes[self.crt_room][0] * 40, self.room_sizes[self.crt_room][1] * 40), 0, 0, cv2.INTER_LINEAR)
+
+        # a_big = np.array(orig_image.getdata(), dtype=np.uint8)
+        # a_big = a_big.reshape((orig_image.size[1], orig_image.size[0], 3))
         return a, a_big
 
     def step(self, action):
         penalty = self.moveChar(action)
         reward, done = self.checkGoal()
         state, s_big = self.renderEnv()
-
-        # for ob in self.objects:
-        #     if ob.name == 'apple':
-        #         zagoal = ob
-        #         break
-        # zagoal = None
-        # if self.first_room:
-        #     zagoal = self.teleporter
-        # else:
-        #     for ob in self.objects:
-        #         if self.choice_first_room[0] and ob.name == 'orange':
-        #             zagoal = ob
-        #             break
-        #         elif not self.choice_first_room[0] and ob.name == 'apple':
-        #             zagoal = ob
-        #             break
-
 
         if reward == None:
             print(done)
@@ -305,11 +328,9 @@ if __name__ == '__main__':
     import numpy as np
 
     player_rng = np.random.RandomState(0)
-    game = Gridworld_4Rooms(partial=False, internal_render=True)
+    game = Gridworld_4Rooms(partial=False, internal_render=True, deterministic=False)
 
     start = time.time()
-    # reward_color = [np.random.uniform(), np.random.uniform(), np.random.uniform()]
-    # reward_color = [1,0,0]
     s = game.reset()
     game.render()
     ep = 0
