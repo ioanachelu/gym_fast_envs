@@ -7,6 +7,7 @@ register(
     entry_point='gym_fast_envs.gym_fast_envs_catcher:FastEnvsCatcher',
     kwargs={'game_name': 'CatcherFlorin-v0', 'display_screen': False, 'level': 0, 'meta_level': 0},
     tags={'wrapper_config.TimeLimit.max_episode_steps': 24},
+    timestep_limit=24,
     nondeterministic=False,
 )
 
