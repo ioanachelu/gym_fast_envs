@@ -141,8 +141,14 @@ class RGBRender(Renderer):
         """Opens a tk window and displays a PIL.Image"""
 
         screen = Image.fromarray(self.screen, 'RGB')
+        sw = self.win.winfo_screenwidth()
+        sh = self.win.winfo_screenheight()
+        w = 512
+        h = 512
+        a, b = (sw - w) / 2, (sh - h) / 2
         screen = screen.resize((512, 512))
-        self.win.geometry('%dx%d' % (screen.size[0], screen.size[1]))
+        self.win.geometry('%dx%d%+d+%d' % (sw, sh, a, b))
+        # self.win.geometry('%dx%d' % (screen.size[0], screen.size[1]))
 
         tkpi = ImageTk.PhotoImage(screen)
         label_img = tkinter.Label(self.win, image=tkpi)
@@ -277,19 +283,19 @@ if __name__ == '__main__':
     game.set_seed(23)  # test change of seed
 
     start = time.time()
-    o, t, r, i = game.reset()
+    o, r, d, i = game.reset()
     ep = 0
     step = 0
     tot_rw = 0
 
     while True:
-        o, t, r, i = game.step(game.actions[player_rng.choice(3)])
+        o, r, d, i = game.step(game.actions[player_rng.choice(3)])
         step += 1
         game.display()
         tot_rw += r
-        if t:
+        if d:
             ep += 1
-            o, t, r, i = game.reset()
+            o, r, d, i = game.reset()
 
     print("Finished %d episodes in %d steps in %.2f. Total reward: %d.",
           (ep, step, time.time() - start, tot_rw))
